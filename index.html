@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حاسبة شحن بطارية السيارة </title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            max-width: 550px;
+            width: 100%;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #1e3c72;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #2a5298;
+        }
+        
+        select {
+            cursor: pointer;
+            background: white;
+        }
+        
+        select:disabled {
+            background: #f5f5f5;
+            cursor: not-allowed;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .calculate-btn {
+            background: #2a5298;
+            color: white;
+        }
+        
+        .calculate-btn:hover {
+            background: #1e3c72;
+            transform: translateY(-2px);
+        }
+        
+        .clear-btn {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .clear-btn:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+        
+        .results {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-right: 4px solid #2a5298;
+        }
+        
+        .result-item {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+        }
+        
+        .result-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .result-label {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .result-value {
+            color: #1e3c72;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            color: white;
+            font-size: 14px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+
+        .note {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        
+        .hybrid-badge {
+            background: #ff9800;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>حاسبة شحن بطارية السيارات </h1>
+        
+        <div class="input-group">
+            <label for="carBrand">الشركة المصنعة:</label>
+            <select id="carBrand" onchange="updateModels()">
+                <option value="">-- اختر الشركة --</option>
+                <optgroup label="الشركات الأمريكية">
+                    <option value="tesla">Tesla</option>
+                    <option value="chevrolet">Chevrolet</option>
+                    <option value="ford">Ford</option>
+                    <option value="cadillac">Cadillac</option>
+                    <option value="gmc">GMC</option>
+                    <option value="lucid">Lucid</option>
+                    <option value="rivian">Rivian</option>
+                </optgroup>
+                <optgroup label="الشركات الصينية">
+                    <option value="byd">BYD (السيارات الكهربائية)</option>
+                    <option value="byd-dmi">BYD DM-i (الهايبرد)</option>
+                    <option value="nio">NIO</option>
+                    <option value="xpeng">XPeng</option>
+                    <option value="mg">MG</option>
+                    <option value="zeekr">Zeekr</option>
+                    <option value="geely">Geely</option>
+                    <option value="leapmotor">Leapmotor</option>
+                    <option value="wuling">Wuling</option>
+                    <option value="ora">ORA</option>
+                    <option value="li-auto">Li Auto</option>
+                    <option value="yangwang">YangWang</option>
+                    <option value="xiaomi">Xiaomi</option>
+                </optgroup>
+                <optgroup label="الشركات الأوروبية">
+                    <option value="volkswagen">Volkswagen (VW)</option>
+                </optgroup>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label for="carModel">الموديل:</label>
+            <select id="carModel" onchange="updateBatteryCapacity()" disabled>
+                <option value="">-- اختر الشركة أولاً --</option>
+            </select>
+            <div class="note">سيتم ملء سعة البطارية تلقائياً</div>
+        </div>
+
+        <div class="input-group">
+            <label for="batteryCapacity">سعة البطارية (كيلوواط/ساعة):</label>
+            <input type="number" id="batteryCapacity" step="0.1" placeholder="مثال: 60">
+        </div>
+        
+        <div class="input-group">
+            <label for="chargerCurrent">قدرة الشاحن (أمبير):</label>
+            <input type="number" id="chargerCurrent" step="0.1" placeholder="مثال: 20">
+        </div>
+        
+        <div class="input-group">
+            <label for="currentCharge">كمية الشحن الحالية (%):</label>
+            <input type="number" id="currentCharge" min="0" max="100" placeholder="مثال: 30">
+        </div>
+        
+        <div class="button-group">
+            <button class="calculate-btn" onclick="calculateCharging()">احسب</button>
+            <button class="clear-btn" onclick="clearInputs()">مسح</button>
+        </div>
+        
+        <div id="results" class="results hidden">
+            <div class="result-item">
+                <div class="result-label">مدة الشحن المتبقية:</div>
+                <div class="result-value" id="chargingTime">-</div>
+            </div>
+            <div class="result-item">
+                <div class="result-label">الطاقة المستهلكة للشحن الكامل:</div>
+                <div class="result-value" id="powerConsumption">-</div>
+            </div>
+            <div class="result-item">
+                <div class="result-label">قدرة الشاحن (واط):</div>
+                <div class="result-value" id="chargerPower">-</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        تصميم: علي الصرايرة
+    </div>
+
+    <script>
+        // قاعدة بيانات السيارات والموديلات
+        const carDatabase = {
+            tesla: [
+                { name: 'Model 3 RWD', battery: 60 },
+                { name: 'Model 3 Long Range', battery: 79 },
+                { name: 'Model 3 Performance', battery: 75 },
+                { name: 'Model Y RWD', battery: 60 },
+                { name: 'Model Y Long Range', battery: 75 },
+                { name: 'Model Y Performance', battery: 79 },
+                { name: 'Model S', battery: 95 },
+                { name: 'Model S Plaid', battery: 95 },
+                { name: 'Model X', battery: 95 }
+            ],
+            chevrolet: [
+                { name: 'Bolt EV', battery: 65 },
+                { name: 'Equinox EV', battery: 75 },
+                { name: 'Silverado EV', battery: 205 }
+            ],
+            ford: [
+                { name: 'Mustang Mach-E', battery: 91 },
+                { name: 'F-150 Lightning', battery: 131 }
+            ],
+            cadillac: [
+                { name: 'Lyriq', battery: 102 },
+                { name: 'Escalade IQ', battery: 200 }
+            ],
+            gmc: [
+                { name: 'Hummer EV', battery: 212 }
+            ],
+            lucid: [
+                { name: 'Air', battery: 117 }
+            ],
+            rivian: [
+                { name: 'R1T', battery: 135 },
+                { name: 'R1S', battery: 135 }
+            ],
+            byd: [
+                { name: 'E2', battery: 43.2 },
+                { name: 'E3', battery: 55.4 },
+                { name: 'ATTO 2', battery: 45.1 },
+                { name: 'ATTO 3', battery: 60.5 },
+                { name: 'Dolphin', battery: 60.4 },
+                { name: 'Dolphin Surf', battery: 43.2 },
+                { name: 'Seal Dynamic (61kWh)', battery: 61.44 },
+                { name: 'Seal Premium (82kWh)', battery: 82.56 },
+                { name: 'Seal Performance (82kWh)', battery: 82.56 },
+                { name: 'Seal 06 EV', battery: 59.52 },
+                { name: 'Seal 06 GT', battery: 72.96 },
+                { name: 'Seal U EV', battery: 87 },
+                { name: 'Sealion 7', battery: 91.3 },
+                { name: 'Song Plus EV 520km', battery: 71.8 },
+                { name: 'Song Plus EV 605km', battery: 87.04 },
+                { name: 'Song L 71.8kWh', battery: 71.8 },
+                { name: 'Song L 87kWh', battery: 87.04 },
+                { name: 'Yuan Plus (ATTO 3)', battery: 60.48 },
+                { name: 'Yuan Up 301km', battery: 32 },
+                { name: 'Yuan Up 401km', battery: 45.12 },
+                { name: 'Tang', battery: 108.8 },
+                { name: 'Han', battery: 85.4 },
+                { name: 'Qin Plus EV', battery: 57.6 },
+                { name: 'Seagull', battery: 38.8 }
+            ],
+            'byd-dmi': [
+                { name: 'Destroyer 05 DM-i (55km)', battery: 8.3 },
+                { name: 'Destroyer 05 DM-i (120km)', battery: 18.3 },
+                { name: 'Seal 05 DM-i', battery: 7.7 },
+                { name: 'Seal U DM-i (70km)', battery: 18.3 },
+                { name: 'Seal U DM-i (80km)', battery: 18.3 },
+                { name: 'Seal U DM-i (125km)', battery: 26.6 },
+                { name: 'Sealion 6 DM-i', battery: 18.3 },
+                { name: 'Song Plus DM-i (51km)', battery: 8.3 },
+                { name: 'Song Plus DM-i (110km)', battery: 18.3 },
+                { name: 'Song Pro DM-i', battery: 18.3 },
+                { name: 'Qin Plus DM-i (55km)', battery: 8.3 },
+                { name: 'Qin Plus DM-i (120km)', battery: 18.3 },
+                { name: 'Qin L DM-i', battery: 18.3 },
+                { name: 'Han DM-i', battery: 18.3 },
+                { name: 'Frigate 07 DM-i (170km)', battery: 36.8 },
+                { name: 'Tang DM-i', battery: 18.3 }
+            ],
+            nio: [
+                { name: 'ET7', battery: 100 },
+                { name: 'ET5', battery: 75 },
+                { name: 'ES6', battery: 100 },
+                { name: 'ES8', battery: 100 },
+                { name: 'EL8', battery: 100 }
+            ],
+            xpeng: [
+                { name: 'P7', battery: 80.9 },
+                { name: 'G6', battery: 87.5 },
+                { name: 'G9', battery: 98 },
+                { name: 'P5', battery: 71.4 }
+            ],
+            mg: [
+                { name: '4 EV 64kWh', battery: 61.7 },
+                { name: '4 EV 51kWh', battery: 50.8 },
+                { name: '5 EV', battery: 57.4 },
+                { name: 'ZS EV', battery: 68.3 },
+                { name: 'IM5', battery: 96.5 },
+                { name: 'Mulan', battery: 64 }
+            ],
+            zeekr: [
+                { name: '001', battery: 100 },
+                { name: '7X', battery: 94 },
+                { name: 'X', battery: 116 }
+            ],
+            geely: [
+                { name: 'EX5', battery: 60.2 },
+                { name: 'Geometry A', battery: 70 },
+                { name: 'Geometry C', battery: 70 }
+            ],
+            leapmotor: [
+                { name: 'C10', battery: 69.9 },
+                { name: 'T03', battery: 36 },
+                { name: 'B10', battery: 65 },
+                { name: 'C11', battery: 90 }
+            ],
+            wuling: [
+                { name: 'Mini EV', battery: 26.5 },
+                { name: 'Air EV', battery: 31.9 },
+                { name: 'Bingo', battery: 37.9 }
+            ],
+            ora: [
+                { name: '07', battery: 64.3 },
+                { name: 'Good Cat', battery: 63.1 }
+            ],
+            'li-auto': [
+                { name: 'Mega', battery: 102.7 },
+                { name: 'L9', battery: 44.5 },
+                { name: 'L8', battery: 42.8 }
+            ],
+            yangwang: [
+                { name: 'U8', battery: 49.05 },
+                { name: 'U9', battery: 80 }
+            ],
+            xiaomi: [
+                { name: 'SU7', battery: 101 },
+                { name: 'SU7 Max', battery: 101 }
+            ],
+            volkswagen: [
+                { name: 'ID.3 55kWh', battery: 55 },
+                { name: 'ID.3 62kWh', battery: 62 },
+                { name: 'ID.3 GTX', battery: 86 },
+                { name: 'ID.4 58kWh', battery: 58 },
+                { name: 'ID.4 77kWh', battery: 77 },
+                { name: 'ID.4 82kWh', battery: 82 },
+                { name: 'ID.4 GTX', battery: 82 },
+                { name: 'ID.5 82kWh', battery: 82 },
+                { name: 'ID.5 GTX', battery: 82 },
+                { name: 'ID.7', battery: 91 },
+                { name: 'ID.7 GTX', battery: 91 },
+                { name: 'ID.7 Tourer', battery: 82 },
+                { name: 'ID.7 Tourer GTX', battery: 91 },
+                { name: 'ID. Buzz', battery: 82 }
+            ]
+        };
+
+        // تحديث قائمة الموديلات بناءً على الشركة المختارة
+        function updateModels() {
+            const brandSelect = document.getElementById('carBrand');
+            const modelSelect = document.getElementById('carModel');
+            const selectedBrand = brandSelect.value;
+            
+            // مسح القائمة الحالية
+            modelSelect.innerHTML = '<option value="">-- اختر الموديل --</option>';
+            
+            if (selectedBrand && carDatabase[selectedBrand]) {
+                // تفعيل قائمة الموديلات
+                modelSelect.disabled = false;
+                
+                // إضافة الموديلات
+                carDatabase[selectedBrand].forEach((model, index) => {
+                    const option = document.createElement('option');
+                    option.value = selectedBrand + '_' + index;
+                    option.textContent = model.name;
+                    option.setAttribute('data-battery', model.battery);
+                    modelSelect.appendChild(option);
+                });
+            } else {
+                // تعطيل قائمة الموديلات
+                modelSelect.disabled = true;
+            }
+            
+            // مسح سعة البطارية
+            document.getElementById('batteryCapacity').value = '';
+        }
+
+        // تحديث سعة البطارية عند اختيار الموديل
+        function updateBatteryCapacity() {
+            const modelSelect = document.getElementById('carModel');
+            const selectedOption = modelSelect.options[modelSelect.selectedIndex];
+            const batteryCapacity = selectedOption.getAttribute('data-battery');
+            
+            if (batteryCapacity) {
+                document.getElementById('batteryCapacity').value = batteryCapacity;
+            }
+        }
+
+        function calculateCharging() {
+            // الحصول على القيم المدخلة
+            const batteryCapacityKWh = parseFloat(document.getElementById('batteryCapacity').value);
+            const chargerCurrentA = parseFloat(document.getElementById('chargerCurrent').value);
+            const currentChargePercent = parseFloat(document.getElementById('currentCharge').value);
+            
+            // التحقق من صحة المدخلات
+            if (isNaN(batteryCapacityKWh) || isNaN(chargerCurrentA) || isNaN(currentChargePercent)) {
+                alert('الرجاء إدخال جميع القيم بشكل صحيح');
+                return;
+            }
+            
+            if (currentChargePercent < 0 || currentChargePercent > 100) {
+                alert('يجب أن تكون نسبة الشحن الحالية بين 0 و 100');
+                return;
+            }
+            
+            if (batteryCapacityKWh <= 0 || chargerCurrentA <= 0) {
+                alert('يجب أن تكون سعة البطارية وقدرة الشاحن أكبر من صفر');
+                return;
+            }
+            
+            // الجهد الكهربائي
+            const voltage = 220;
+            
+            // تحويل سعة البطارية من كيلوواط/ساعة إلى أمبير/ساعة
+            const batteryCapacityAh = (batteryCapacityKWh * 1000) / voltage;
+            
+            // حساب الشحن المتبقي المطلوب
+            const remainingChargePercent = 100 - currentChargePercent;
+            const remainingCapacityAh = (batteryCapacityAh * remainingChargePercent) / 100;
+            
+            // حساب مدة الشحن (مع إضافة 20% للخسائر)
+            const efficiencyLoss = 1.2;
+            const chargingTimeHours = (remainingCapacityAh * efficiencyLoss) / chargerCurrentA;
+            
+            // حساب قدرة الشاحن بالواط
+            const chargerPowerW = voltage * chargerCurrentA;
+            
+            // حساب الطاقة المستهلكة بالكيلوواط/ساعة
+            const powerConsumptionKWh = (chargerPowerW * chargingTimeHours) / 1000;
+            
+            // عرض النتائج
+            const hours = Math.floor(chargingTimeHours);
+            const minutes = Math.round((chargingTimeHours - hours) * 60);
+            
+            document.getElementById('chargingTime').textContent = 
+                `${hours} ساعة و ${minutes} دقيقة`;
+            
+            document.getElementById('powerConsumption').textContent = 
+                `${powerConsumptionKWh.toFixed(2)} كيلوواط/ساعة`;
+            
+            document.getElementById('chargerPower').textContent = 
+                `${chargerPowerW.toFixed(0)} واط`;
+            
+            document.getElementById('results').classList.remove('hidden');
+        }
+        
+        function clearInputs() {
+            document.getElementById('carBrand').value = '';
+            document.getElementById('carModel').innerHTML = '<option value="">-- اختر الشركة أولاً --</option>';
+            document.getElementById('carModel').disabled = true;
+            document.getElementById('batteryCapacity').value = '';
+            document.getElementById('chargerCurrent').value = '';
+            document.getElementById('currentCharge').value = '';
+            document.getElementById('results').classList.add('hidden');
+        }
+        
+        // السماح بالحساب عند الضغط على Enter
+        document.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                calculateCharging();
+            }
+        });
+    </script>
+</body>
+</html>
